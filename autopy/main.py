@@ -4,12 +4,13 @@
 # ' main entry point '            #表示模块的文档注释
 import argparse
 
+from autopy.core.App import App
+from autopy.core.Option import Option
+
 __author__ = 'Song Hui'  # 作者名
 
-import sys
 
-
-def get_options():
+def get_options_from_command_line():
     # Initialize parser
     parser = argparse.ArgumentParser()
 
@@ -21,8 +22,9 @@ def get_options():
 
     if args:
         print("parsing arguments: {}".format(args))
-    return {'project': args.project}
+    return Option(args.project)
 
 
 if __name__ == '__main__':
-    option = get_options()
+    option = get_options_from_command_line()
+    app = App(option)
