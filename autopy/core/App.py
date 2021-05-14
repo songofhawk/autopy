@@ -1,6 +1,7 @@
-from autopy.core import Option
+from autopy.core.Option import Option
+from autopy.core.ProjectLoader import ProjectLoader
 from autopy.core.Executor import Executor
-from autopy.core.Project import Project
+from autopy.core.data.Project import Project
 
 
 class App:
@@ -15,4 +16,4 @@ class App:
         self.project = ProjectLoader.load(project_file)
 
     def execute(self):
-        executor = Executor(self.option.project)
+        executor = Executor(self.project)

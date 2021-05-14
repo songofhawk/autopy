@@ -1,10 +1,12 @@
-from ruamel.yaml import YAML, yaml_object
+from autopy.core.lib.yaml import yaml
+from ruamel.yaml import yaml_object
 from operator import methodcaller
 
-yaml = YAML()
+
 @yaml_object(yaml)
 class ScreenRect(dict):
     yaml_tag = u'!rect'
+
     # screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
     # screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
 
@@ -55,4 +57,3 @@ class ScreenRect(dict):
         v = list(map(lambda x: x[1], map(methodcaller("split", ":"), splits)))
         # print(v)
         return cls(left=int(v[0]), right=int(v[1]), top=int(v[2]), bottom=int(v[3]))
-
