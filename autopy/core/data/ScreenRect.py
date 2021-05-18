@@ -54,6 +54,6 @@ class ScreenRect(dict):
     def from_yaml(cls, constructor, node):
         splits = node.value.split(', ')
         # test = list(map(lambda x: x + '_sss', splits))
-        v = list(map(lambda x: x[1], map(methodcaller("split", ":"), splits)))
+        v = list(map(lambda x: int(x[1]) if x[1].isdigit() else x[1], map(methodcaller("split", ":"), splits)))
         # print(v)
-        return cls(left=int(v[0]), right=int(v[1]), top=int(v[2]), bottom=int(v[3]))
+        return cls(left=v[0], right=v[1], top=v[2], bottom=v[3])

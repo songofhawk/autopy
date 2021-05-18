@@ -15,7 +15,6 @@ class ProjectLoader:
             project_map = yaml.load(f)
             for k, v in project_map.items():
                 cls.handle_value(project, k, v)
-        conf = yaml.load(f)
         return project
 
     @classmethod
@@ -27,12 +26,12 @@ class ProjectLoader:
             new_list = []
             for item in value:
                 if isinstance(item, CommentedMap):
-                    new_list.append(obj.cls(item))
+                    new_list.append(cls(item))
                 else:
                     new_list.append(item)
             setattr(obj, key, new_list)
 
         elif isinstance(value, CommentedMap):
-            setattr(obj, key, obj.cls(value))
+            setattr(obj, key, cls(value))
         else:
             setattr(obj, key, value)

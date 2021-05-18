@@ -10,4 +10,5 @@ class Project:
     screen_with: int = 1920
     screen_height: int = 1080
     range: ScreenRect = None
+    time_scale: float = 1.0
     states: List[State] = []
