@@ -29,23 +29,24 @@ def has_init_argument(clazz):
 
 
 def yaml_to_typed_obj(yaml_obj, clazz):
-    '''
-
-    :param yaml_obj:
-    :param clazz:
+    """
+    把dict-list结构的yaml对象（树状结构），转换为预定义好类型的类实例，
+    本函数是个递归函数，将按深度优先遍历yaml树的所有节点，并逐级对应到clazz指定的类属性中
+    :param yaml_obj: yaml对象
+    :param clazz: 类定义，表示要实例化的对象类型，如果这个对象为空
     :return:
     注意: 这里跟generic泛型相关的一些判断，比如__origin__, __args__都是低于python3.7版本的，更高版本还有待完善
     参考：
     * https://stackoverflow.com/questions/49171189/whats-the-correct-way-to-check-if-an-object-is-a-typing-generic
     * https://mypy.readthedocs.io/en/stable/kinds_of_types.html
     * https://docs.python.org/zh-cn/3/library/typing.html
-    '''
+    """
     if isinstance(yaml_obj, CommentedMap):
         if has_init_argument(clazz):
             raise TypeError('类 {} 的构造函数需要参数，无法通过CommentedMap实例化！\r\n {}'.format(clazz.__name__, yaml_obj))
         obj = clazz()
+        types = get_type_hints(clazz)
         for k, v in yaml_obj.items():
-            types = get_type_hints(clazz)
             if k not in types:
                 continue
             type_hint = types[k]
