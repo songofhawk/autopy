@@ -12,13 +12,11 @@ states:
           snapshot: !rect l:160, r:200, t:160, b:200
           template: states/1/dingding_logo.png
           confidence: 0.8
-        fail_action:
-          raise_error: '找不到钉钉图标'
+        fail_action: raise_error('找不到钉钉图标')
       - image:
           snapshot: !rect l:160, r:200, t:160, b:200
           template: states/1/notepad_logo.png
-        fail_action:
-          raise_error: '找不到记事本图标'
+        fail_action: raise_error('找不到记事本图标')
     transiion:
       # 打开记事本
       action: DbClick($check_result[1].center_x, $check_result[1].center_y)
@@ -31,8 +29,7 @@ states:
       image:
         snapshot: !rect l:10, r:20, t:25, b:35
         template: states/2/notepad_title.png
-      fail_action:
-        raise_error: '没能成功启动记事本'
+      fail_action: raise_error('没能成功启动记事本')
     transiion:
       # 打开钉钉
       action: DbClick($state[1].check_result[0].center_x, $state[1].check_result[0].center_y)
@@ -44,8 +41,7 @@ states:
       image:
         snapshot: !rect l:10, r:20, t:25, b:35
         template: states/2/tzding_logo.png
-      fail_action:
-        raise_error: '没能成功启动钉钉,或者当前企业不是天助定'
+      fail_action: raise_error('没能成功启动钉钉,或者当前企业不是天助定')
     find:
       image:
         snapshot: !rect l:30, r:120, t:35, b:800
@@ -53,8 +49,7 @@ states:
       scroll:
         one_page: 200
         page_count: 5
-      fail_action:
-        raise_error: '没找到工作汇报消息'
+      fail_action: raise_error('没找到工作汇报消息')
       transiion:
         action: Click($find_result.center_x, $find_result.rect.bottom)
         wait: 2
@@ -66,8 +61,7 @@ states:
         # "看日志" 文本
         snapshot: !rect l:30, r:50, t:35, b:55
         text: "看日志"
-      fail_action:
-        raise_error: '没能成功进入日志列表页面'
+      fail_action: raise_error('没能成功进入日志列表页面')
     find:
       #      image:
       #        # "已读" "未读" 标记 作为行标识
@@ -81,8 +75,7 @@ states:
         snapshot: !rect l:70, r:90, t:55, b:800
         template: states/3/work_report_text_snippet.png
       find_all: True
-      fail_action:
-        raise_error: '没找到任何人的周报'
+      fail_action: raise_error('没找到任何人的周报')
       transiion:
         for: row in $find_result
         action: Click($row.rect.left - 50, $row.center_y)
