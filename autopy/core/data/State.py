@@ -36,6 +36,7 @@ class Find:
     scroll: Scroll
     fail_action: Action
     transition: Transition
+    find_all: bool
 
 
 class State:

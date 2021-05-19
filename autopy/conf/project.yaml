@@ -17,7 +17,7 @@ states:
           snapshot: !rect l:160, r:200, t:160, b:200
           template: states/1/notepad_logo.png
         fail_action: raise_error('找不到记事本图标')
-    transiion:
+    transition:
       # 打开记事本
       action: DbClick($check_result[1].center_x, $check_result[1].center_y)
       wait: 5
@@ -30,7 +30,7 @@ states:
         snapshot: !rect l:10, r:20, t:25, b:35
         template: states/2/notepad_title.png
       fail_action: raise_error('没能成功启动记事本')
-    transiion:
+    transition:
       # 打开钉钉
       action: DbClick($state[1].check_result[0].center_x, $state[1].check_result[0].center_y)
       wait: 5
@@ -50,7 +50,7 @@ states:
         one_page: 200
         page_count: 5
       fail_action: raise_error('没找到工作汇报消息')
-      transiion:
+      transition:
         action: Click($find_result.center_x, $find_result.rect.bottom)
         wait: 2
 
@@ -76,7 +76,7 @@ states:
         template: states/3/work_report_text_snippet.png
       find_all: True
       fail_action: raise_error('没找到任何人的周报')
-      transiion:
+      transition:
         for: row in $find_result
         action: Click($row.rect.left - 50, $row.center_y)
         wait: 1

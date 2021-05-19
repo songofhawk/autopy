@@ -1,7 +1,7 @@
 from typing import List
 
 from .ScreenRect import ScreenRect
-from .State import State
+from .State import State, Find
 
 
 class Project:
