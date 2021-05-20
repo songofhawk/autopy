@@ -37,7 +37,9 @@ def yaml_to_typed_obj(yaml_obj, clazz, reserve_extra_attr=True):
                     当这个参数的值为None，那么就根据reserve_extra_attr参数判断:
                     如果reserve_extra_attr=True，就把参数yaml_obj转换为普通的dict-list树状结构
                     如果reserve_extra_attr=False，就忽略这个对象
-    :param reserve_extra_attr:
+    :param reserve_extra_attr: 是否保留那些在clazz中未定义，但yaml_obj中存在的属性；
+        缺省为True，也就是即使clazz中未定义，也设置为对象的属性，如果不是基本类型，那就就装换为DataObject类
+        如果为False，那就就严格按照clazz的定义转换，忽略所有未定义的属性
     :return:
     注意: 这里跟generic泛型相关的一些判断，比如__origin__, __args__都是低于python3.7版本的，更高版本还有待完善
     参考：
