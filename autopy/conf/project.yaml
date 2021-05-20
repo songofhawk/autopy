@@ -77,7 +77,7 @@ states:
       find_all: True
       fail_action: raise_error('没找到任何人的周报')
       transition:
-        for: row in $find_result
+        foreach: row in $find_result
         action: Click($row.rect.left - 50, $row.center_y)
         wait: 1
         to:
