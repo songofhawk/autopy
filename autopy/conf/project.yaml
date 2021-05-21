@@ -1,9 +1,9 @@
 name: "整理钉钉周报内容到记事本"
-ver: 0.1
-screen_width: 1920
-screen_height: 1080
-range: !rect l:0, r:1000, t:0, b:800
-time_scale: 1
+#ver: 0.1
+#screen_width: 1920
+#screen_height: 1080
+#range: !rect l:0, r:1000, t:0, b:800
+#time_scale: 1
 states:
   - name: "桌面"
     id: 1
@@ -80,7 +80,7 @@ states:
         foreach: row in $find_result
         action: Click($row.rect.left - 50, $row.center_y)
         wait: 1
-        to:
+        sub_states:
           - name: "某人的日报内容"
             id: 40
             transition:

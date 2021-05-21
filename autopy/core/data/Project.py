@@ -12,3 +12,6 @@ class Project:
     range: ScreenRect = None
     time_scale: float = 1.0
     states: List[State] = []
+
+    def __init__(self):
+        self.sub_states: List[State] = []

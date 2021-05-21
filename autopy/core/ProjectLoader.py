@@ -15,8 +15,20 @@ class ProjectLoader:
         with open(project_file, encoding='utf-8') as f:
             yaml_obj = yaml.load(f)
             project = yaml_to_typed_obj(yaml_obj, Project)
+            # project.states[0].transition.to.state = None
             # project_clean = yaml_to_typed_obj(yaml_obj, Project, reserve_extra_attr=False)
             return project
+
+
+def get_type_definition(obj):
+    types_in_class = get_type_hints(type(obj))
+    instance_in_obj = obj.__dict__
+    for k, v in instance_in_obj.items():
+        types_in_class[k] = type(v)
+
+    # 这里有个合并两个字典的方法，要求python >= 3.5
+    # types = {**types_in_class, **types_in_obj}
+    return types_in_class
 
 
 def has_init_argument(clazz):
@@ -28,7 +40,7 @@ def has_init_argument(clazz):
     return False
 
 
-def yaml_to_typed_obj(yaml_obj, clazz, reserve_extra_attr=True):
+def yaml_to_typed_obj(yaml_obj, clazz, reserve_extra_attr=True, init_empty_attr=True):
     """
     把CommentedMap-CommentedSeq结构的yaml对象（树状结构），转换为预定义好类型的类实例，
     本函数是个递归函数，将按深度优先遍历yaml树的所有节点，并逐级对应到clazz指定的类属性中
@@ -40,12 +52,16 @@ def yaml_to_typed_obj(yaml_obj, clazz, reserve_extra_attr=True):
     :param reserve_extra_attr: 是否保留那些在clazz中未定义，但yaml_obj中存在的属性；
         缺省为True，也就是即使clazz中未定义，也设置为对象的属性，如果不是基本类型，那就就装换为DataObject类
         如果为False，那就就严格按照clazz的定义转换，忽略所有未定义的属性
+    :param init_empty_attr: 是否初始化yaml_obj中没有的属性（但是clazz定义中有）
+        如果为True，那么把yaml_obj中没有的属性都初始化为None
+        如果为False，那么什么都不做，结果就是生成的对象中根本没有这个属性
     :return:
     注意: 这里跟generic泛型相关的一些判断，比如__origin__, __args__都是低于python3.7版本的，更高版本还有待完善
     参考：
     * https://stackoverflow.com/questions/49171189/whats-the-correct-way-to-check-if-an-object-is-a-typing-generic
     * https://mypy.readthedocs.io/en/stable/kinds_of_types.html
     * https://docs.python.org/zh-cn/3/library/typing.html
+    * https://sikasjc.github.io/2018/07/14/type-hint-in-python/
     """
     if clazz is None and not reserve_extra_attr:
         return None
@@ -66,7 +82,7 @@ def yaml_to_typed_obj(yaml_obj, clazz, reserve_extra_attr=True):
             item_type = clazz
 
         for item in yaml_obj:
-            typed_obj = yaml_to_typed_obj(item, item_type, reserve_extra_attr)
+            typed_obj = yaml_to_typed_obj(item, item_type, reserve_extra_attr, init_empty_attr)
             if typed_obj is not None:
                 new_list.append(typed_obj)
         return new_list
@@ -79,16 +95,22 @@ def yaml_to_typed_obj(yaml_obj, clazz, reserve_extra_attr=True):
             types = None
         else:
             obj = clazz()
-            types = get_type_hints(clazz)
+            types = get_type_definition(obj)
 
         for k, v in yaml_obj.items():
             if types is not None and k in types:
                 attr_type = types[k]
             else:
                 attr_type = None
-            typed_obj = yaml_to_typed_obj(v, attr_type, reserve_extra_attr)
+            typed_obj = yaml_to_typed_obj(v, attr_type, reserve_extra_attr, init_empty_attr)
             if typed_obj is not None:
                 setattr(obj, k, typed_obj)
+
+        if init_empty_attr:
+            for k in types.keys():
+                if k not in yaml_obj:
+                    setattr(obj, k, None)
+
         return obj
     elif isinstance(yaml_obj, str):
         if clazz is None:
