@@ -106,7 +106,7 @@ def yaml_to_typed_obj(yaml_obj, clazz, reserve_extra_attr=True, init_empty_attr=
             if typed_obj is not None:
                 setattr(obj, k, typed_obj)
 
-        if init_empty_attr:
+        if init_empty_attr and types is not None:
             for k in types.keys():
                 if k not in yaml_obj:
                     setattr(obj, k, None)
