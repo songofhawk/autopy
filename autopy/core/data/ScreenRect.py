@@ -1,38 +1,79 @@
-from autopy.core.lib.yaml import yaml
-from ruamel.yaml import yaml_object
 from operator import methodcaller
+
+from ruamel.yaml import yaml_object
+
+from autopy.core.data import Action
+from autopy.core.share.yaml import yaml
 
 
 @yaml_object(yaml)
-class ScreenRect(dict):
+class ScreenRect(object):
     yaml_tag = u'!rect'
+    snapshot = None
 
     # screen_width = win32api.GetSystemMetrics(win32con.SM_CXSCREEN)
     # screen_height = win32api.GetSystemMetrics(win32con.SM_CYSCREEN)
 
-    def __init__(self, left: int = None, right: int = None, top: int = None, bottom: int = None):
+    def __init__(self, left=None, right=None, top=None, bottom=None):
         # super(ScreenRect, self).__init__([left, right, top, bottom])
         # self._inner_list = [left, right, top, bottom]
-        self['l'] = left
-        self['r'] = right
-        self['t'] = top
-        self['b'] = bottom
+        self.has_exp = False
+        if isinstance(left, str):
+            self.has_exp = True
+            self.left_exp: Action.Evaluation = Action.Evaluation(left)
+            self.left = None
+        else:
+            self.left = left
+            self.left_exp = None
 
-    @property
-    def left(self):
-        return self['l']
+        if isinstance(right, str):
+            self.has_exp = True
+            self.right_exp: Action.Evaluation = Action.Evaluation(right)
+            self.right = None
+        else:
+            self.right = right
+            self.right_exp = None
 
-    @property
-    def right(self):
-        return self['r']
+        if isinstance(top, str):
+            self.has_exp = True
+            self.top_exp: Action.Evaluation = Action.Evaluation(top)
+            self.top = None
+        else:
+            self.top = top
+            self.top_exp = None
 
-    @property
-    def top(self):
-        return self['t']
+        if isinstance(bottom, str):
+            self.has_exp = True
+            self.bottom_exp: Action.Evaluation = Action.Evaluation(bottom)
+            self.bottom = None
+        else:
+            self.bottom = bottom
+            self.bottom_exp = None
 
-    @property
-    def bottom(self):
-        return self['b']
+        self.center_x = 0
+        self.center_y = 0
+        if not self.has_exp:
+            self._compute()
+
+    def _compute(self):
+        self.center_x = (self.left + self.right) / 2
+        self.center_y = (self.top + self.bottom) / 2
+
+    def evaluate(self):
+        if not self.has_exp:
+            return self
+
+        if self.left_exp is not None:
+            self.left = self.left_exp.evaluate_exp()
+        if self.right_exp is not None:
+            self.right = self.right_exp.evaluate_exp()
+        if self.top_exp is not None:
+            self.top = self.top_exp.evaluate_exp()
+        if self.bottom_exp is not None:
+            self.bottom = self.bottom_exp.evaluate_exp()
+
+        self._compute()
+        return self
 
     def swap_top_bottom(self):
         temp_top = self.top
@@ -57,3 +98,31 @@ class ScreenRect(dict):
         v = list(map(lambda x: int(x[1]) if x[1].isdigit() else x[1], map(methodcaller("split", ":"), splits)))
         # print(v)
         return cls(left=v[0], right=v[1], top=v[2], bottom=v[3])
+
+    def offset_by(self, other):
+        if (isinstance(self.left, float) or isinstance(self.left, int)) \
+                and (isinstance(other.left, float) or isinstance(other.left, int)):
+            left = self.left + other.left
+        else:
+            raise RuntimeError("left must be an integer or float number for '+' operator")
+        if (isinstance(self.top, float) or isinstance(self.top, int)) \
+                and (isinstance(other.top, float) or isinstance(other.top, int)):
+            top = self.top + other.top
+        else:
+            raise RuntimeError("top must be an integer or float number for '+' operator")
+
+        if (isinstance(self.right, float) or isinstance(self.right, int)) \
+                and (isinstance(other.left, float) or isinstance(other.left, int)):
+            right = self.right + other.left
+        else:
+            raise RuntimeError("left must be an integer or float number for '+' operator")
+        if (isinstance(self.bottom, float) or isinstance(self.bottom, int)) \
+                and (isinstance(other.top, float) or isinstance(other.top, int)):
+            bottom = self.bottom + other.top
+        else:
+            raise RuntimeError("top must be an integer or float number for '+' operator")
+
+        return ScreenRect(left, right, top, bottom)
+
+    def snap_left(self, width):
+        return ScreenRect(self.left - width, self.left, self.top, self.bottom)

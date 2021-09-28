@@ -17,3 +17,4 @@ class App:
 
     def execute(self):
         executor = Executor(self.project)
+        executor.run()
