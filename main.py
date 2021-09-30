@@ -3,7 +3,7 @@
 
 # ' main entry point '            #表示模块的文档注释
 import argparse
-import pretty_errors
+# import pretty_errors
 
 from autopy.core.App import App
 from autopy.core.Option import Option
