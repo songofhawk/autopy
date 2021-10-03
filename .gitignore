@@ -134,3 +134,5 @@ log/*
 /autopy/conf/log/
 .vscode/launch.json
 /autopy/log/
+idea/
+.idea/autopy.iml
