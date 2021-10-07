@@ -1,4 +1,5 @@
 # autopy
+## 简介
 Autopy是一款运行屏幕自动化脚本的工具。
 
 我们做屏幕自动化任务的时候，通常都会经历这样几个步骤：
@@ -11,6 +12,7 @@ Autopy把这个过程，抽象为一个状态机模型：每个页面是一个�
 在每一个State内部，可以做check（检查是否需要的页面），可以find（查找特定控件，或者收集信息）；
 针对find的结果，还可以形成子状态，来实现复杂的操作。
 
+## 示例
 Autopy的自动化脚本，由一个yaml配置文件，和子文件夹构成，文件夹中通常存放要查找的图像模板。
 一个简单的配置文件示例如下：
 ```yaml
@@ -22,15 +24,21 @@ ver: 0.1
 # screen_width: 3440   
 # screen_height: 1440
 states:
-  - name: "切换当前窗口"
+  - name: "当前窗口"
     # 为了简化，这里假设当前桌面刚刚从浏览器窗口切换到脚本运行窗口，所以一启动就先用alt+tab键切换回去
     id: 1
     transition:
       # 通过点击热键这个action, 迁移到下一个状态
       action: hotkey('alt', 'tab')
       wait: 1
-  - name: "刷新"
+  - name: "浏览器窗口"
     id: 2
+    check:
+      image:
+          snapshot: !rect l:0, r:60, t:113, b:182
+          template: auto_test/detect_logo.png
+          # debug: True
+      fail_action: raise_error('当前页面不是期待的页面')
     transition:
       # 通过点击F5实现浏览器刷新，迁移前先等待60s；
       # 没有其他页面需要显示了，所以还是迁移到当前状态，无限循环
@@ -38,5 +46,20 @@ states:
       wait: 60
       to: 2
 ```
+这里states是一个列表，每个列表项是一个状态，每个状态有一个id属性作为唯一标识。状态之间的迁移，通过transition属性的to来指定。
+to指定的内容可以是某一个state的id，也可以是next（缺省值），next意味着迁移到下一个状态（按列表定义顺序，而不是id编号顺序）。
 
+transition的action是表示触发迁移的动作，支持键盘鼠标、屏幕、剪贴板、窗口引用（目前只支持windows）等一系列操作。
+transition的wait表示动作执行以后，等待的时间。
 
+这里的check属性里面定义了image，用来检测屏幕上特定区域是否显示了指定的图案，如果图案存在，说明正确进入了当前状态；
+如果不存在，会触发fail_action的执行。
+
+这个示例可以用流程图表示如下:
+```mermaid
+graph TD:
+    1[当前窗口] -- Alt+Tab --> 2[浏览器窗口]
+    2 -- F5 --> 2 
+```
+
+## 配置项参考
