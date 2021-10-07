@@ -46,6 +46,13 @@ states:
       wait: 60
       to: 2
 ```
+上面这个示例可以用流程图表示如下:
+```mermaid
+graph TD;
+    1[当前窗口] -- Alt+Tab --> 2[浏览器窗口]
+    2 -- F5 --> 2 
+```
+
 这里states是一个列表，每个列表项是一个状态，每个状态有一个id属性作为唯一标识。状态之间的迁移，通过transition属性的to来指定。
 to指定的内容可以是某一个state的id，也可以是next（缺省值），next意味着迁移到下一个状态（按列表定义顺序，而不是id编号顺序）。
 
@@ -55,11 +62,14 @@ transition的wait表示动作执行以后，等待的时间。
 这里的check属性里面定义了image，用来检测屏幕上特定区域是否显示了指定的图案，如果图案存在，说明正确进入了当前状态；
 如果不存在，会触发fail_action的执行。
 
-这个示例可以用流程图表示如下:
-```mermaid
-graph TD;
-    1[当前窗口] -- Alt+Tab --> 2[浏览器窗口]
-    2 -- F5 --> 2 
-```
+## 配置类
+实际上，每个配置项，都有对应的数据类型定义，autopy读取配置文件的时候，会通过objtyping把yaml数据转换为对应的类实例。
+
+数据类型定义，请参照 [autopy 类图](docs/autopy_class_diagram.md)
+
+本文档开头实例中的配置文件，转换之后的实例关系图如下：[autopy 示例对象图](docs/autopy_sample_object_diagram.md)
+
 
 ## 配置项参考
+详见 [autopy 参考文档](docs/autopy_reference.md)
+

@@ -6,11 +6,6 @@ from autopy.core.data.Action import Action, Execution, Evaluation
 from autopy.core.data.Find import Find
 
 
-class For:
-    def __init__(self, _for_str):
-        self._for_str = _for_str
-
-
 class To:
     def __init__(self, _to='next'):
         self.is_next = False
