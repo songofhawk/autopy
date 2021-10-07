@@ -57,7 +57,7 @@ transition的wait表示动作执行以后，等待的时间。
 
 这个示例可以用流程图表示如下:
 ```mermaid
-graph TD:
+graph TD;
     1[当前窗口] -- Alt+Tab --> 2[浏览器窗口]
     2 -- F5 --> 2 
 ```
