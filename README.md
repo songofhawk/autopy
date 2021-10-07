@@ -66,8 +66,11 @@ transition的wait表示动作执行以后，等待的时间。
 实际上，每个配置项，都有对应的数据类型定义，autopy读取配置文件的时候，会通过objtyping把yaml数据转换为对应的类实例。
 
 数据类型定义，请参照 [autopy 类图](docs/autopy_class_diagram.md)
+![plantuml代理生成的autopy 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/autopy_class_diagram.md)
+
 
 本文档开头实例中的配置文件，转换之后的实例关系图如下：[autopy 示例对象图](docs/autopy_sample_object_diagram.md)
+![plantuml代理生成的autopy 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/autopy_sample_object_diagram.md)
 
 
 ## 配置项参考
