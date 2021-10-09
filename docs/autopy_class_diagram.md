@@ -59,6 +59,12 @@ namespace autopy {
 				hwnd: 窗口句柄
 			}
 
+			class ColorDetection {
+                pos: 像素点位置
+                color: 像素点颜色
+                tolerance: 误差容忍度
+    		}
+
 			class Transition {
 				action: 迁移的触发动作
                 wait_before: 执行action之前的等待时间
@@ -89,6 +95,7 @@ namespace autopy {
             Detection <|-- ImageDetection
             Detection <|-- OcrDetection
             Detection <|-- WindowDetection
+            Detection <|-- ColorDetection
             
             Action <|-- Execution
             Action <|-- Evaluation
@@ -103,6 +110,8 @@ namespace autopy {
             Find "1" o-- "*" Detection : image
             Find "1" o-- "*" Detection : ocr
             Find "1" o-- "*" Detection : window
+            Find "1" o-- "*" Detection : color
+            
             Find "1" o-- "*" Execution : fail_action
             
             Transition "1" o-- "*" Execution : action
