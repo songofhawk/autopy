@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-      使用标准UTF-8编码；
 
 # ' main entry point '            #表示模块的文档注释
-import argparse
+
+"""
+这是主模块
+"""
 
 from autopy.core.App import App
 from autopy.core.Option import Option
@@ -11,6 +14,7 @@ __author__ = 'Song Hui'  # 作者名
 
 
 def get_options_from_command_line():
+    import argparse
     # Initialize parser
     parser = argparse.ArgumentParser()
 
