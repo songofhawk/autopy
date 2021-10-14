@@ -5,6 +5,21 @@ from autopy.core.detection.Detection import Detection
 
 
 class ColorDetection(Detection):
+    """
+    颜色检测，查看当前页面上，指定位置的像素，是否满足指定的颜色值。
+
+    Example:
+      check:
+        color:
+          pos: (12,92)
+          color: (209, 211, 213)
+        fail_action: locate_state('当前页面没有检测到指定颜色')
+
+    Attributes:
+        pos (Tuple[int,int]): 像素坐标位置
+        color (Tuple[int,int]): rgb表示的颜色值，3组0~255之间的数值
+        tolerance (int): 容忍度，rgb三色差绝对值之和，如果小于容忍度，就认为颜色相同
+    """
     pos: Tuple[int, int]
     color: Tuple[int, int, int]
     tolerance: int = 0

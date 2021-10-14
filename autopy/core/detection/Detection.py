@@ -2,6 +2,10 @@ from autopy.core.data.AutoBase import AutoBase
 
 
 class Detection(AutoBase):
+    """
+    检测基础类，有ColorDetection, ImageDetection, OcrDetection, WindowDetection等子类，用于检测页面上的特定内容。
+
+    """
     template: str
 
     def __init__(self):
