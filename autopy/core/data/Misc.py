@@ -27,6 +27,9 @@ class To:
 
 
 class Transition:
+    """
+    状态迁移配置节点，指定什么动作会触发迁移
+    """
     action: Execution
     wait_before: int
     wait: int
@@ -45,6 +48,18 @@ class Transition:
 
 
 class State:
+    """
+    状态节点，用于配置界面流中一个特定的页面
+
+    Attributes:
+        name (str): 状态（页面）名称
+        id (int): 状态唯一标识
+        check (Find): 检查是否真属于当前页面
+        find (Find): 在当前页面中查找特定元素或者片段
+        action (Action): 进入当前页面状态后，会采取什么操作（比如鼠标点击），但不会引起状态迁移，这里可以是一个操作，也可以是多个；如果需要多个操作，就配置为列表，操作会按列表顺序执行
+        transition (Transition): 状态迁移配置
+        foreach (ForEach): 在当前状态下，针对特定数据做循环
+    """
     name: str = None
     id: int = -1
     check: Find
