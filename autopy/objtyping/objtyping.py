@@ -40,26 +40,6 @@ def _parse_tuple_str(tuple_str):
 
 
 def from_dict_list(dict_list_obj, clazz: T, reserve_extra_attr=True, init_empty_attr=True, reserved_classes=None) -> T:
-    """
-    把CommentedMap-CommentedSeq结构的yaml对象（树状结构），转换为预定义好类型的类实例，
-    本函数是个递归函数，将按深度优先遍历yaml树的所有节点，并逐级对应到clazz指定的类属性中
-    :param dict_list_obj: dict-list嵌套结构的对象，比如 {"a":5, "b":"welcome", "c":[{"x":3.5, "y":"Tom"}, {"x":24, "y":"Jerry"}]}
-    :param clazz: 类定义，表示要实例化的对象类型，当这个参数的值为None，就统一按DataObject处理
-    :param reserve_extra_attr: 是否保留那些在clazz中未定义，但dict_list_obj中存在的属性；
-        缺省为True，也就是即使clazz中未定义，也设置为对象的属性，如果不是基本类型，那就就装换为DataObject类
-        如果为False，那就就严格按照clazz的定义转换，忽略所有未定义的属性
-    :param init_empty_attr: 是否初始化dict_list_obj中没有的属性（但是clazz定义中有）
-        如果为True，那么把dict_list_obj中没有的属性都初始化为None
-        如果为False，那么什么都不做，结果就是生成的对象中根本没有这个属性
-    :param reserved_classes: 如果在dict_list_obj结构中，有一些特殊的对象，他们是dict或者list子类的实例，不需要按照dict或者list解析，而是直接作为属性放在转化后的对象中，就可以把它放在这个参数里
-    :return:
-    注意: 这里跟generic泛型相关的一些判断，比如__origin__, __args__都是低于python3.7版本的，更高版本还有待完善
-    参考：
-    * https://stackoverflow.com/questions/49171189/whats-the-correct-way-to-check-if-an-object-is-a-typing-generic
-    * https://mypy.readthedocs.io/en/stable/kinds_of_types.html
-    * https://docs.python.org/zh-cn/3/library/typing.html
-    * https://sikasjc.github.io/2018/07/14/type-hint-in-python/
-    """
     if clazz is None and not reserve_extra_attr:
         return None
 
@@ -139,11 +119,6 @@ def is_basic_type(obj):
 
 
 def to_dict_list(obj):
-    """
-    把指定的对象，转换成dict-list结构
-    :param obj: 要转换的对象，通常是一个类实例
-    :return: 一个dict-list嵌套的结构，可用于序列化
-    """
     if isinstance(obj, list):
         list1 = []
         for item in obj:

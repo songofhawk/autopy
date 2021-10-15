@@ -4,7 +4,12 @@
 # ' main entry point '            #表示模块的文档注释
 
 """
-这是主模块
+程序启动入口。启动后，程序将按照-project(-p)参数指定的配置文件，执行自动化项目
+
+Examples:
+    ```console
+    python autopy -p ./conf/auto_dingding.yaml
+    ```
 """
 
 from autopy.core.App import App
