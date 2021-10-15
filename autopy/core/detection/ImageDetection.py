@@ -8,6 +8,36 @@ from autopy.core.detection.Detection import Detection
 
 
 class ImageDetection(Detection):
+    """
+    图像检测，在当前页面的指定范围内，查找匹配的图像。如果找到了，会返回一个result结构，
+
+    Example:
+        ```yaml
+        # State的一个属性
+          image:
+            snapshot: !rect l:65, r:298, t:221, b:761
+            template: auto_dingding/work_report_text_snippet.png
+            confidence: 0.8
+            keep_clip: result.rect_on_image.snap_left(45)
+        ```
+
+    Attributes:
+        snapshot (ScreenRect): 屏幕截图位置，限定查找范围，可以指定得大一些，程序会在指定范围内查找图像
+        template (str): 要查找的图像模板文件（支持相对路径）
+        confidence (float): 置信度，查找图像的时候，并不需要严格一致，程序会模糊匹配，并返回一个置信度（0 ~ 1之间的一个数值），置信度大于给定的数值，才会认为找到了
+        keep_clip (Action.Evaluation): 根据返回结果，额外保持一个截图片段（比如已经查到图像左侧100个像素的区域）
+
+    ```yaml
+    result:
+        rect_on_image: 结果图像在指定区域内的相对位置
+        rect_on_screen: 结果图像在屏幕上的位置
+        image: 结果图像
+        clip: 额外截取的图像片段
+        clip_on_image: clip图像在指定区域内的相对位置
+        clip_on_screen: clip图像在屏幕上的位置
+    ```
+    """
+
     snapshot: ScreenRect
     confidence: float = 0.8
     keep_clip: Action.Evaluation

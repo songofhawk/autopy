@@ -5,6 +5,27 @@ from autopy.core.detection.Detection import Detection
 
 
 class OcrDetection(Detection):
+    """
+    文本检测，在当前页面的指定范围内，首先用OCR识别文字，查找是否与给定文本匹配。如果识别文本和给定文本的匹配度，大于给定值，则认为找到了，并且将其返回
+
+    Example:
+        ```yaml
+        # State的一个属性
+        ocr:
+            snapshot: !rect l:75, r:137, t:129, b:157
+            text: "看日志"
+        ```
+
+    Attributes:
+        snapshot (ScreenRect): 屏幕截图位置，限定查找范围，可以指定得大一些，程序会在指定范围内查找图像
+        text (str): 要查找的文本字符串
+        confidence (float): 置信度，查找文本的时候，并不需要严格一致，程序会模糊匹配，并返回一个置信度（0 ~ 1之间的一个数值），置信度大于给定的数值，才会认为找到了
+
+    ```yaml
+    result: 如果找到了，就返回OCR识别的文本本身，如果没有找到，就返回None
+    ```
+    """
+
     snapshot: ScreenRect
     text: str
     confidence: float = 0.8

@@ -9,11 +9,13 @@ class ColorDetection(Detection):
     颜色检测，查看当前页面上，指定位置的像素，是否满足指定的颜色值。
 
     Example:
+      ```
       check:
         color:
           pos: (12,92)
           color: (209, 211, 213)
         fail_action: locate_state('当前页面没有检测到指定颜色')
+      ```
 
     Attributes:
         pos (Tuple[int,int]): 像素坐标位置
