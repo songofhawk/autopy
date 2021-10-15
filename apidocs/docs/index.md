@@ -1,20 +1,20 @@
-# Welcome to MkDocs
+# Autopy 简介
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Autopy是一款python编写的开源RPA工具（屏幕控制自动化）。
 
-## Commands
+我们做自动化任务的时候，通常都会经历这样几个步骤：
+1. 检查当前桌面上是否显示了需要的页面（比如查看特定位置的图像，或者比对OCR识别出的文字）
+2. 如果确实是，就收集一些文字或图像的信息（这一步未必会有，要看具体任务类型，有些自动化只要把页面流程走通就可以）
+3. 查找页面上特定的控件（比如某个按钮），对它进行操作（如点击）
+4. 跳转到下一个页面，回到步骤1，反复循环，直到最终页面出现
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+Autopy把这个过程，抽象为一个状态机模型：每个页面是一个状态（state），通过“action”触发，可以跳转到下一个状态；
+在每一个State内部，可以做check（检查是否需要的页面），可以find（查找特定控件，或者收集信息）；
+针对find的结果，还可以形成子状态，来实现复杂的操作。
 
-## Project layout
+## 文档结构
 
-    mkdocs.yml    # The configuration file.
     docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+        index.md  # 首页
+        api_reference.md # API参考手册
 
-## generated
-::: autopy
