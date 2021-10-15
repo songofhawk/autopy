@@ -12,20 +12,52 @@ from autopy.objtyping.objtyping import DataObject
 
 
 class ActionImage:
+    """
+    图像处理操作类
+
+    """
     cnocr = CnOcr()
 
     @classmethod
     def pil_to_cv(cls, pil_image):
+        """
+        把Pillow(PIL)格式的图片，转换成opencv格式的图片。
+        两者的差别在于，首先PIL支持更丰富的图片表达方式，不一定使用RGB表达，还可以用HSV或者其他形式；
+        但opencv一定用红绿蓝三原色组合，而且还别出心裁地使用了BGR这个顺序，而不是通常的RGB。
+
+        Args:
+            pil_image: PIL格式的图片
+
+        Returns:
+            opencv格式的图片
+        """
         img_tmp = pil_image.convert('RGB')
         cv_rgb = np.array(img_tmp)
         return cv2.cvtColor(cv_rgb, cv2.COLOR_RGB2BGR)
 
     @classmethod
     def load_from_file(cls, image_path):
+        """
+        从文件中读取图片，返回opencv格式的变量
+        Args:
+            image_path (str): 图片路径，暂时仅支持8位颜色深度
+
+        Returns:
+            opencv格式的图片变量
+        """
         return cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), -1)
 
     @classmethod
     def ocr(cls, cv_image, rect=None):
+        """
+        从指定图片的特定位置中提取文本字符串
+        Args:
+            cv_image (numpy): 图片变量，要求是opencv格式的
+            rect: 图片中的位置
+
+        Returns:
+
+        """
         if rect is not None:
             cv_image = cv_image[rect.top:rect.bottom, rect.left:rect.right]
         cv_image_gray = cv2.cvtColor(cv_image, cv2.COLOR_BGR2GRAY)
