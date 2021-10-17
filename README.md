@@ -5,6 +5,7 @@ Autopy是一款python语言编写的开源RPA工具（桌面自动控制工具�
 ## 为什么是autopy
 * 这是一个基于MIT协议的开源项目，对商业应用友好
 * 市面上常见的RPA工具，虽然功能强大完善，但基本上都基于过程控制的理念，实际上成了图形化编程工具，面对稍微复杂的场景，就需要编制大量的判断跳转和子流程嵌套；而autopy针对实际RPA场景做出了合理的抽象，虽然使用YAML格式配置，实际上是一种桌面自动控制的DSL，可以更便捷地表达自动化场景。
+* 基于图像采集、智能匹配和OCR识别，可以支持任何类型的桌面应用，而无需手工分析页面结构。
 
 ## 状态机概念
 我们做屏幕自动化任务的时候，通常都会经历这样几个步骤：
@@ -75,9 +76,12 @@ transition的wait表示动作执行以后，等待的时间。
 
 
 本文档开头实例中的配置文件，转换之后的实例关系图如下：[autopy 示例对象图](docs/autopy_sample_object_diagram.md)
-![plantuml代理生成的autopy 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/autopy_sample_object_diagram.md)
+![plantuml代理生成的autopy 对象图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/autopy_sample_object_diagram.md)
 
 
-## 配置项参考
-详见 [autopy 参考文档](docs/autopy_reference.md)
+## 待实现
+* 更方便的数据读取和采集模型（目前只能基于键盘鼠标操作实现）
+* 图形化设计器（会先放出一个辅助截图工具）
+* 可扩展的操作（这样就可以自己实现
+* 发布到PyPI库，支持pip install 安装
 
