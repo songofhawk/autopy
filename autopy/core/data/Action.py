@@ -57,6 +57,7 @@ class Action:
         'paste': ActionClipboard.paste,
         'locate_state': ActionError.locate_state,
         'set_window_pos': ActionWindow.set_window_pos,
+        'get_window_rect': ActionWindow.get_window_rect,
     }
 
     _call_env = {**func_dict, **{}}

@@ -242,4 +242,6 @@ class Executor:
             raise RuntimeError("Expect a Find object in finding, but got a {}".format(type(find)))
 
         Action.save_call_env({FIND_RESULT: found})
+        if find.result_name is not None:
+            Action.save_call_env({find.result_name: found})
         return found

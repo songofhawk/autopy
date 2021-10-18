@@ -36,6 +36,7 @@ class Find:
     scroll: Scroll
     fail_action: Execution
     find_all: bool = False
+    result_name: None
 
     def do(self, exe_fail_action=True):
         if self.image is not None:
