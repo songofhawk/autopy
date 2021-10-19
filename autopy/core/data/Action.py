@@ -1,3 +1,4 @@
+from __future__ import annotations
 import time
 
 from autopy.core.action import ActionMouse
@@ -65,14 +66,16 @@ class Action:
     def __init__(self, action_str):
         self._action_str = action_str
         if action_str.startswith('locate_state'):
-            self.is_locate_state = True
+            self.is_flow_control = True
 
-    def call(self, call_env=None):
+    def call_once(self, call_env=None):
         if call_env is not None:
             if isinstance(call_env, dict):
                 self.save_call_env(call_env)
             else:
-                raise RuntimeError('The argument in "call" method of "Action" object, should be a dict, but {} is passed'.format(type(call_env)))
+                raise RuntimeError(
+                    'The argument in "call" method of "Action" object, should be a dict, but {} is passed'.format(
+                        type(call_env)))
         return self.evaluate_exp()
 
     def evaluate_exp(self):
@@ -89,11 +92,25 @@ class Action:
     def get_call_env(cls, name):
         return cls._call_env[name]
 
+    @classmethod
+    def call(cls, actions: Action, call_env=None):
+        if actions is None:
+            return None
+        if isinstance(actions, list):
+            results = []
+            for action in actions:
+                result = action.call_once(call_env)
+                results.append(result)
+            return results
+        elif isinstance(actions, Action):
+            return actions.call_once(call_env)
+
 
 class Evaluation(Action):
     """
     Action操作类的子类，执行以后会有返回值
     """
+
     def __init__(self, action_str):
         super().__init__(action_str)
         self.exp = compile(action_str, '', 'eval')
@@ -107,6 +124,7 @@ class Execution(Action):
     """
     Action操作类的子类，执行以后没有返回值
     """
+
     def __init__(self, action_str):
         super().__init__(action_str)
         self.exp = compile(action_str, '', 'exec')

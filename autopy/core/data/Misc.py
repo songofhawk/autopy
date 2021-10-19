@@ -79,7 +79,7 @@ class ForEach:
         self.call_env = {}
 
     def do(self, executor):
-        items = self.in_items.call()
+        items = self.in_items.call_once()
         item_name = 'item' if self.item is None else self.item
         if isinstance(items, list):
             for item in items:
@@ -90,11 +90,7 @@ class ForEach:
             self._do_one(executor)
 
     def _do_one(self, executor):
-        if isinstance(self.action, Action):
-            self.action.call(self.call_env)
-        elif isinstance(self.action, list):
-            for one_action in self.action:
-                one_action.call(self.call_env)
+        Action.call(self.action, self.call_env)
 
         sub_states = self.sub_states
         if sub_states is not None and len(sub_states) > 0:

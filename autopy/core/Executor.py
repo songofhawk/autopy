@@ -58,7 +58,7 @@ class Executor:
         if not self._do_check(the_state.check):
             return
 
-        self._call_action(the_state.action)
+        Action.call(the_state.action)
 
         self._do_find(the_state.find)
 
@@ -83,7 +83,7 @@ class Executor:
             time.sleep(transition.wait_before)
 
         # 首先调用触发transition的动作
-        self._call_action(transition.action)
+        Action.call(transition.action)
 
         if transition.wait is not None:
             time.sleep(transition.wait)
@@ -104,16 +104,6 @@ class Executor:
 
         self._current_index = next_index
         self._current_state = next_state
-
-    @staticmethod
-    def _call_action(action):
-        if action is None:
-            return
-        if isinstance(action, Action):
-            action.call()
-        elif isinstance(action, list):
-            for one_action in action:
-                one_action.call()
 
     def drill_into_substates(self, sub_states):
         self.push_currents()
@@ -165,7 +155,7 @@ class Executor:
         if check_pass:
             return True
 
-        if fail_action is not None and fail_action.is_locate_state:
+        if fail_action is not None and fail_action.is_flow_control:
             print("即将定位当前界面处于那个状态...")
             for one_state in self._current_states[::-1]:
                 # 逆序遍历状态列表,也可以用reversed方法

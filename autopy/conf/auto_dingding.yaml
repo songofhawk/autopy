@@ -115,6 +115,7 @@ states:
       scroll:
         one_page: -800  # 负数是假设目前看到的是列表顶端，内容向上滚
         page_count: 1
+        find_mode: all
       fail_action: raise_error('没找到任何人的周报')
     foreach:
       in_items: find_result
