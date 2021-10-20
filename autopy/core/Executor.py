@@ -7,6 +7,7 @@ from autopy.core.data.Action import Action
 from autopy.core.data.Misc import Find
 from autopy.core.data.Misc import ForEach
 from autopy.core.data.Project import Project
+from autopy.core.share import list_util
 
 
 class Env(object):
@@ -55,12 +56,14 @@ class Executor:
         print('enter state "{}"'.format(the_state.name))
         Action.save_call_env({STATE: the_state})
 
-        if not self._do_check(the_state.check):
+        # check中如果触发了影响流程的fail_action，那么就退出当前状态，直接按照该action指定的状态迁移
+        if not self._do_find(the_state.check, False):
             return
 
         Action.call(the_state.action)
 
-        self._do_find(the_state.find)
+        # 暂时find先不执行影响流程的fail_action（is_flow_control==True)
+        self._do_find(the_state.find, True)
 
         foreach = the_state.foreach
         if isinstance(foreach, ForEach):
@@ -145,93 +148,79 @@ class Executor:
     def pop_currents(self):
         (self._current_state, self._current_index, self._current_states) = self._currents.pop()
 
-    def _do_check(self, check):
+    def _do_find(self, find, save_result):
         """
         check的目标是检查页面是否中的处于当前状态，所以只要有一条不符，就失败。此时如果fail_action是locate_state，就会从当前状态组中逐一检查处于哪个状态，并且直接跳转到对应的状态执行
-        :param check:
+        :param find:
         :return:
         """
-        check_pass, fail_action = self._get_check_result(check, True)
-        if check_pass:
+        results, flow_control_fail_action = self._get_find_result(find, True)
+        if len(results>0):
+            if save_result:
+                Action.save_call_env({FIND_RESULT: results})
             return True
 
-        if fail_action is not None and fail_action.is_flow_control:
-            print("即将定位当前界面处于那个状态...")
-            for one_state in self._current_states[::-1]:
-                # 逆序遍历状态列表,也可以用reversed方法
-                print("-- 测试是否属于状态'{}'".format(one_state.name))
-                locate_check = one_state.check
-                if locate_check is None:
-                    continue
-                check_pass, _ = self._get_check_result(locate_check, False)
-                if check_pass:
-                    print("---- 找到了,就是这个状态!")
-                    self._current_state = one_state
-                    self._current_index = one_state.id
-                    return False
-            self._current_state = None
-            self._current_index = None
-            return False
+        if flow_control_fail_action is not None:
+            if flow_control_fail_action.is_locate_state:
+                return self._locate_state()
+            else:
+                self._current_state = None
+                self._current_index = None
+                return False
         else:
             self._current_state = None
             self._current_index = None
             return False
 
     @staticmethod
-    def _get_check_result(check, exe_fail_action):
+    def _get_find_result(find, exe_fail_action=True):
         """
         check和find的区别在于, 如果有多条, check是只要其中一条不满足, 就退出
-        :param check:
-        :return check_pass: 检查是否通过
-        :return fail_action: 如果没通过,对应的fail_action
-        """
-        if check is None:
-            return True, None
-
-        fail_action = None
-        if isinstance(check, list):
-            check_pass = True
-            for check_one in check:
-                result_one = check_one.do(exe_fail_action)
-                if result_one is None:
-                    check_pass = False
-                    fail_action = check_one.fail_action
-                    break
-        elif isinstance(check, Find):
-            result_one = check.do(exe_fail_action)
-            if result_one is None:
-                check_pass = False
-                fail_action = check.fail_action
-            else:
-                check_pass = True
-        else:
-            raise RuntimeError("Expect a Find object in checking, but got a {}".format(type(check)))
-        return check_pass, fail_action
-
-    @staticmethod
-    def _do_find(find):
-        """
-        find的目标是为迁移到下一个状态做准备, 所以如果有多条，那么就逐一收集查找结果
-        :param find: 待执行的查找对象
-        :return: 查找结果
+        :param find:
+        :return check_pass: 查找是否通过
+        :return fail_actions: 如果没通过,对应和状态迁移相关的fail_action
         """
         if find is None:
-            return None
+            return True, None
 
+        flow_control_fail_action = None
+        results = []
         if isinstance(find, list):
-            found = []
             for find_one in find:
-                find_result = find_one.do()
-                if find_result is not None:
-                    found.append(find_result)
-            if len(found) == 0:
-                found = None
+                result = find_one.do(exe_fail_action)
+                if result is None:
+                    flow_control_fail_action = find_one.flow_control_fail_action()
+                    if flow_control_fail_action is not None:
+                        break
+                else:
+                    list_util.append_to(results, result)
         elif isinstance(find, Find):
-            found = find.do()
+            result = find.do(exe_fail_action)
+            if result is None:
+                flow_control_fail_action = find.flow_control_fail_action()
+            else:
+                list_util.append_to(results, result)
         else:
-            raise RuntimeError("Expect a Find object in finding, but got a {}".format(type(find)))
+            raise RuntimeError("Expect a Find object, but got a {}".format(type(find)))
 
-        Action.save_call_env({FIND_RESULT: found})
-        if find.result_name is not None:
-            Action.save_call_env({find.result_name: found})
-        return found
+        return results, flow_control_fail_action
+
+    def _locate_state(self):
+        # 执行定位状态
+        print("即将定位当前界面处于那个状态...")
+        for one_state in self._current_states[::-1]:
+            # 逆序遍历状态列表,也可以用reversed方法
+            print("-- 测试是否属于状态'{}'".format(one_state.name))
+            locate_check = one_state.check
+            if locate_check is None:
+                continue
+            check_pass, _ = self._get_find_result(locate_check, False)
+            if check_pass:
+                print("---- 找到了,就是这个状态!")
+                self._current_state = one_state
+                self._current_index = one_state.id
+                return False
+        self._current_state = None
+        self._current_index = None
+        return False
+

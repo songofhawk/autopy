@@ -8,6 +8,7 @@ from autopy.core.detection.ImageDetection import ImageDetection
 from autopy.core.detection.OcrDetection import OcrDetection
 from autopy.core.detection.ColorDetection import ColorDetection
 from autopy.core.detection.WindowDetection import WindowDetection
+from autopy.core.share import list_util
 
 
 class Scroll:
@@ -46,18 +47,48 @@ class Find:
     scroll: Scroll
     fail_action: Execution
     result_name: None
+    find_mode: str = "All"
 
-    def do(self):
+    def do(self, do_fail_action):
+        results = []
+        found_any = False
+        found_all = True
         if self.image is not None:
-            return self._do_once(self.image)
-        elif self.ocr is not None:
-            return self._do_once(self.ocr)
-        elif self.color is not None:
-            return self._do_once(self.color)
-        elif self.window is not None:
-            return self._do_once(self.window)
+            res = self._do_once(self.image, do_fail_action)
+            found_any = found_any or (res is not None)
+            found_all = found_all and (res is not None)
+            list_util.append_to(results,res)
 
-    def _do_once(self, detection):
+        if self.ocr is not None:
+            res = self._do_once(self.ocr, do_fail_action)
+            found_any = found_any or (res is not None)
+            found_all = found_all and (res is not None)
+            list_util.append_to(results,res)
+
+        if self.color is not None:
+            res = self._do_once(self.color, do_fail_action)
+            found_any = found_any or (res is not None)
+            found_all = found_all and (res is not None)
+            list_util.append_to(results,res)
+
+        if self.window is not None:
+            res = self._do_once(self.window, do_fail_action)
+            found_any = found_any or (res is not None)
+            found_all = found_all and (res is not None)
+            list_util.append_to(results,res)
+
+        if self.find_mode == "All" and found_all:
+            if self.result_name is not None:
+                Action.save_call_env({self.result_name: results})
+            return results
+        elif self.find_mode == "Any" and found_any:
+            if self.result_name is not None:
+                Action.save_call_env({self.result_name: results})
+            return results
+        else:
+            return None
+
+    def _do_once(self, detection, do_fail_action):
         if detection is None:
             return None
         detect_res = None
@@ -79,10 +110,7 @@ class Find:
             # 如果滚动的时候，找到即返回，那么就检查detect_res是否为None
             # 如果滚动到指定页数，返回所有找到的结果，那么就不用检查detect_res了
             detect_res = detection.do()
-            if isinstance(detect_res, list):
-                results.extend(detect_res)
-            else:
-                results.append(detect_res)
+            list_util.append_to(list, detect_res)
             page += 1
             if self.scroll:
                 time.sleep(1)
@@ -92,9 +120,25 @@ class Find:
 
         size = len(results)
         if size == 0:
-            Action.call(self.fail_action)
+            if do_fail_action:
+                Action.call(self.fail_action)
             return None
         elif size == 1:
             return results[0]
         else:
             return results
+
+    def flow_control_fail_action(self):
+        # 找到当前find节点中的影响流程运行的fail_action并返回
+        # 一个find节点（即使是list组成的节点）中，只能有一个影响流程运行的fail_action
+        fail_action = self.fail_action
+        if fail_action is None:
+            return None
+
+        if isinstance(fail_action, Action) and fail_action.is_flow_control:
+            return fail_action
+        if isinstance(fail_action, list):
+            for one_action in fail_action:
+                if one_action.is_flow_control:
+                    return one_action
+        return None

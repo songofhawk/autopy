@@ -67,6 +67,10 @@ class Action:
         self._action_str = action_str
         if action_str.startswith('locate_state'):
             self.is_flow_control = True
+            self.is_locate_state = True
+        else:
+            self.is_flow_control = False
+            self.is_locate_state = False
 
     def call_once(self, call_env=None):
         if call_env is not None:
