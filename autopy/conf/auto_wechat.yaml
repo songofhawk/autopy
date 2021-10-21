@@ -53,24 +53,64 @@ states:
     id: 4
     action:
       - chat_rect = ScreenRect(we_chat.left+304, 785, we_chat.top+62, 723)
+      - df = create_dataframe(['time', 'start', 'end', 'price'])
     find:
       image:
         snapshot: chat_rect
         template: auto_wechat/chat_splitter.png
+        detect_all: True
       #        debug: True
-      find_all: True
-      scroll:
-        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
-        page_count: 20
+      #      scroll:
+      #        one_page: 800  # 负数是假设目前看到的是列表顶端，内容向上滚
+      #        page_count: 20
       fail_action: raise_error('没找到对话分割线')
     foreach:
       in_items: find_result
       item: splitter
       action:
         - sp_rect = splitter.rect_on_screen
-        - 
+      sub_states:
+        - id: 40
+          check:
+            image:
+              snapshot: sp_rect.topleft.offset_rect(65,50, 10, 11)
+              template: auto_wechat/angle.png
+              for_not_exist: True
+          find:
+            image:
+              snapshot: sp_rect.topleft.offset_rect(60,45, 87, 176)
+              template: auto_wechat/snapshot_thumbnail.png
+              confidence: 0.5
+          transition:
+            action: click(sp_rect.topleft.offset(60,45, 87, 176))
+        - id: 42
+          check:
+            image:
+              snapshot: ScreenRect.center_expand(500,1200)
+              template: auto_wechat/completed.png
+          find:
+            image:
+              snapshot: ScreenRect.center_expand(500,1200)
+              template: auto_wechat/line_in_snapshot.png
+              detect_all: True
+          for_each:
+            in_items: find_result
+            item: line
+            action:
+              - block = line.rect_on_screen
+              - row_1 = block.snap_bottom(60)
+              - time_str = ocr(row_1)
+              - row_2 = row_1.snap_bottom(50)
+              - start_str = ocr(row_2)
+              - row_3 = row_2.snap_bottom(50)
+              - end_str = ocr(row_3)
+              - row_4 = row_3.snap_bottom(45)
+              - price_str = ocr(row_4)
+              - df = df.append({'time':time_str, 'start':start_str, 'end':end_str, 'price':price_str})
     transition:
-      # 右击第一个卡片
-      action: press('enter')
       wait: 1
+  - name: "网约沟通群内容"
+    id: 5
+    action:
+      - df.to_excel('./result.xlsx')
 

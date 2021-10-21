@@ -4,6 +4,7 @@ import time
 from autopy.core.action import ActionMouse
 from autopy.core.action.ActionClipboard import ActionClipboard
 from autopy.core.action.ActionError import ActionError
+from autopy.core.action.ActionExcel import ActionExcel
 from autopy.core.action.ActionImage import ActionImage
 from autopy.core.action.ActionKeyboard import ActionKeyboard
 from autopy.core.action.ActionScreen import ActionScreen
@@ -59,6 +60,7 @@ class Action:
         'locate_state': ActionError.locate_state,
         'set_window_pos': ActionWindow.set_window_pos,
         'get_window_rect': ActionWindow.get_window_rect,
+        'create_dataframe': ActionExcel.create_dataframe,
     }
 
     _call_env = {**func_dict, **{}}

@@ -70,7 +70,7 @@ class ImageDetection(Detection):
     def _gen_result(self, res, screen_image):
         result = ImageDetectResult()
         result.rect_on_image = res.rect
-        result.rect_on_screen = res.rect.offset_by(self.snapshot)
+        result.rect_on_screen = res.rect.offset_from(self.snapshot)
         result.image = screen_image
         self.get_clip(result)
         return result
@@ -117,7 +117,7 @@ class ImageDetection(Detection):
 
         res.clip = clip
         res.clip_on_image = rect
-        res.clip_on_screen = res.clip_on_image.offset_by(self.snapshot)
+        res.clip_on_screen = res.clip_on_image.offset_from(self.snapshot)
 
         return clip
 

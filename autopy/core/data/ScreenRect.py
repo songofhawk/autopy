@@ -6,6 +6,22 @@ from autopy.core.data import Action
 from autopy.core.share.yaml import yaml
 
 
+class ScreenPoint(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def offset_rect(self, x, y, width, height):
+        left = self.x + x
+        top = self.y + y
+        right = left + width
+        bottom = top + height
+        return ScreenRect(left, right, top, bottom)
+
+    def offset(self, x, y):
+        return ScreenPoint(self.x + x, self.y + y)
+
+
 @yaml_object(yaml)
 class ScreenRect(object):
     yaml_tag = u'!rect'
@@ -99,26 +115,26 @@ class ScreenRect(object):
         # print(v)
         return cls(left=v[0], right=v[1], top=v[2], bottom=v[3])
 
-    def offset_by(self, other):
+    def offset_from(self, other_rect):
         if (isinstance(self.left, float) or isinstance(self.left, int)) \
-                and (isinstance(other.left, float) or isinstance(other.left, int)):
-            left = self.left + other.left
+                and (isinstance(other_rect.left, float) or isinstance(other_rect.left, int)):
+            left = self.left + other_rect.left
         else:
             raise RuntimeError("left must be an integer or float number for '+' operator")
         if (isinstance(self.top, float) or isinstance(self.top, int)) \
-                and (isinstance(other.top, float) or isinstance(other.top, int)):
-            top = self.top + other.top
+                and (isinstance(other_rect.top, float) or isinstance(other_rect.top, int)):
+            top = self.top + other_rect.top
         else:
             raise RuntimeError("top must be an integer or float number for '+' operator")
 
         if (isinstance(self.right, float) or isinstance(self.right, int)) \
-                and (isinstance(other.left, float) or isinstance(other.left, int)):
-            right = self.right + other.left
+                and (isinstance(other_rect.left, float) or isinstance(other_rect.left, int)):
+            right = self.right + other_rect.left
         else:
             raise RuntimeError("left must be an integer or float number for '+' operator")
         if (isinstance(self.bottom, float) or isinstance(self.bottom, int)) \
-                and (isinstance(other.top, float) or isinstance(other.top, int)):
-            bottom = self.bottom + other.top
+                and (isinstance(other_rect.top, float) or isinstance(other_rect.top, int)):
+            bottom = self.bottom + other_rect.top
         else:
             raise RuntimeError("top must be an integer or float number for '+' operator")
 
@@ -126,3 +142,10 @@ class ScreenRect(object):
 
     def snap_left(self, width):
         return ScreenRect(self.left - width, self.left, self.top, self.bottom)
+
+    def snap_bottom(self, height):
+        return ScreenRect(self.left, self.right, self.bottom, self.bottom + height)
+
+    @property
+    def topleft(self):
+        return ScreenPoint(self.left, self.top)

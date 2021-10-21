@@ -137,7 +137,7 @@ states:
         #        - log_image("snapshot", snapshot_image)
         #        - log_image("clip", week_report.clip)
         - clip_rect = find_template(snapshot_image, week_report.clip).rect
-        - clip_on_screen = clip_rect.offset_by(snapshot_rect)
+        - clip_on_screen = clip_rect.offset_from(snapshot_rect)
         #        - print(x)
         #        - print(clip_on_screen.center_x, clip_on_screen.center_y)
         - click(clip_on_screen.center_x, clip_on_screen.center_y)
