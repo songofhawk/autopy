@@ -5,6 +5,7 @@ Autopy是一款python语言编写的开源RPA工具（桌面自动控制工具�
 ## 为什么是autopy
 * 这是一个基于MIT协议的开源项目，对商业应用友好
 * 市面上常见的RPA工具，虽然功能强大完善，但基本上都基于过程控制的理念，实际上成了图形化编程工具，面对稍微复杂的场景，就需要编制大量的判断跳转和子流程嵌套；而autopy针对实际RPA场景做出了合理的抽象，虽然使用YAML格式配置，实际上是一种桌面自动控制的DSL，可以更便捷地表达自动化场景。
+* 支持配置文件内嵌Python代码，可以实现更灵活的逻辑
 * 基于图像采集、智能匹配和OCR识别，可以支持任何类型的桌面应用，而无需手工分析页面结构。
 
 ## 状态机概念
@@ -20,6 +21,8 @@ Autopy把这个过程，抽象为一个状态机模型：每个页面是一个�
 
 ## 示例
 Autopy的自动化脚本，由一个yaml配置文件，和子文件夹构成，文件夹中通常存放要查找的图像模板。
+
+### 示例1——自动刷新页面
 一个简单的配置文件示例如下：
 ```yaml
 # 有一个特定的浏览器页面，我们需要定时刷新，以便更新它的状态
@@ -68,14 +71,61 @@ transition的wait表示动作执行以后，等待的时间。
 这里的check属性里面定义了image，用来检测屏幕上特定区域是否显示了指定的图案，如果图案存在，说明正确进入了当前状态；
 如果不存在，会触发fail_action的执行。
 
+### 示例2——
+自动归档trello任务。一个典型的trello归档页面如下：
+![trello看板归档](autopy/conf/auto_trello/trello.png)
+
+下面的脚本，可以帮用户自动归档所有已完成的任务。
+
+```yaml
+name: "自动归档Trello"
+ver: 0.5
+#screen_width: 3440
+#screen_height: 1440
+range: !rect l:0, r:1920, t:0, b:1080
+time_scale: 1
+states:
+  - name: "点击获取窗口焦点"
+    id: 1
+    transition:
+      # 点击
+      action: click(300, 20)
+      wait: 1.5
+      to: next
+  - name: "已完成列表"
+    id: 2
+    transition:
+      # 右击第一个卡片
+      action: rightclick(1540, 290)
+      wait: 1
+      to: next
+  - name: "右键菜单"
+    id: 3
+    find:
+      image:
+        snapshot: !rect l:1415, r:1805, t:239, b:609
+        template: auto_trello/detect_target.png
+        confidence: 0.8
+      fail_action: raise_error('找不到归档按钮')
+    transition:
+      # 左击归档按钮
+      action: click(1415 + state.find_result.center_x, 239 + state.find_result.center_y)
+      wait: 1
+      to: 2
+      max_time: 2
+```
+
+
 ## 配置类
 实际上，每个配置项，都有对应的数据类型定义，autopy读取配置文件的时候，会通过objtyping把yaml数据转换为对应的类实例。
 
 数据类型定义，请参照 [autopy 类图](docs/autopy_class_diagram.md)
+
 ![plantuml代理生成的autopy 类图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/autopy_class_diagram.md)
 
 
 本文档开头实例中的配置文件，转换之后的实例关系图如下：[autopy 示例对象图](docs/autopy_sample_object_diagram.md)
+
 ![plantuml代理生成的autopy 对象图](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.githubusercontent.com/songofhawk/autopy/main/docs/autopy_sample_object_diagram.md)
 
 
